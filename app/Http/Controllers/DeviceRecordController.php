@@ -50,7 +50,7 @@ class DeviceRecordController extends Controller
     {
         $school="device ".$request->school_id;
         if($request->school_id==1){
-            $school="MainTenderCare 1";
+            $school="Sunrise 1";
         }else if($request->school_id==2){
             $school="MainTenderCare 2";
         }else if($request->school_id==3){
