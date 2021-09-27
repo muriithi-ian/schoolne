@@ -70,13 +70,14 @@
                     </a>
                 </div>
                 <!-- /.social-auth-links -->
+                <!-- commenting out the registration of new members -->
 
-                <p class="mb-1">
+                <!-- p class="mb-1">
                     <a href="{{route('school.forgotPassword')}}">I forgot my password</a>
                 </p>
                 <p class="mb-0">
                     <a href="{{route('school.register')}}" class="text-center">Register a new membership</a>
-                </p>
+                </p> --> 
             </div>
             <!-- /.login-card-body -->
         </div>
