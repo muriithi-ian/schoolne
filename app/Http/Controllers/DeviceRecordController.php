@@ -52,7 +52,7 @@ class DeviceRecordController extends Controller
         if($request->school_id==1){
             $school="Sunrise 1";
         }else if($request->school_id==2){
-            $school="MainTenderCare 2";
+            $school="Sunrise 2";
         }else if($request->school_id==3){
             $school="Umoja 1";
         }else if($request->school_id==4){
@@ -88,10 +88,10 @@ class DeviceRecordController extends Controller
         //        dd($records);
         foreach ($records as $key) {
             $enter = sizeof(FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
-                ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+                ->where('time_taken', '<', (string)Carbon::today(6, 0, 0)->valueOf())
                 ->where('status', '=', 'enter')->where('upi_no', '=', $key->upi_no)
                 ->get());
-            $exit = sizeof(FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
+            $exit = sizeof(FaceRecord::where('time_taken', '>', (string)Carbon::today(6, 0, 0)->valueOf())
                 ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                 ->where('status', '=', 'exit')->where('upi_no', '=', $key->upi_no)
                 ->get());
@@ -764,11 +764,11 @@ class DeviceRecordController extends Controller
         if ($sms_time == 'first') {
             $templete1 = Smstemplete::where('id', '=', 1)->get()->pluck('content');
 
-            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . "  UPI:" . $face_record->student->upi_no . " has arrived at school at $new_time with a temperature of $temp " . $templete1[0];
+            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . "  UPI:" . $face_record->student->upi_no . " has arrived at school at with a temperature of $temp " . $templete1[0];
             // dd($templete);
         } else {
             $templete1 = Smstemplete::where('id', '=', 2)->get()->pluck('content');
-            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . " UPI:" . $face_record->student->upi_no . " has left school for home at $new_time with a temperature of $temp " . $templete1[0];
+            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . " UPI:" . $face_record->student->upi_no . " has left school for home at with a temperature of $temp " . $templete1[0];
         }
 
 
