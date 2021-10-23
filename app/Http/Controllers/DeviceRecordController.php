@@ -152,7 +152,7 @@ class DeviceRecordController extends Controller
                         $level = $level . "\nhasGuardian";
                         $faceR = FaceRecord::where('upi_no', '=', $upi_no)
                             ->where('time_taken', '>', (string)Carbon::today()->valueOf())
-                            ->where('time_taken', '<', (string)Carbon::today(6, 0, 0)->valueOf())
+                            ->where('time_taken', '<', (string)Carbon::today()->addHours(9)->valueOf())
                             ->where('status', '=', 'enter')
                             ->orderby('id', 'DESC')
                             ->first();
@@ -186,7 +186,7 @@ class DeviceRecordController extends Controller
 
                 /////////////////////////
             } else if ($enter == 1 && $exit == 0 && $mnull == 1) {
-                $r = FaceRecord::where('time_taken', '>', (string)Carbon::today(6, 0, 01)->valueOf())
+                $r = FaceRecord::where('time_taken', '>=', (string)Carbon::today()->addHours(9)->valueOf())
                     ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                     ->whereNull('status')->where('upi_no', '=', $key->upi_no)
                     ->get()->first();
