@@ -88,10 +88,10 @@ class DeviceRecordController extends Controller
         //        dd($records);
         foreach ($records as $key) {
             $enter = sizeof(FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
-                ->where('time_taken', '<', (string)Carbon::today(6, 0, 59)->valueOf())
+                ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                 ->where('status', '=', 'enter')->where('upi_no', '=', $key->upi_no)
                 ->get());
-            $exit = sizeof(FaceRecord::where('time_taken', '>', (string)Carbon::today(6, 01, 0)->valueOf())
+            $exit = sizeof(FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
                 ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                 ->where('status', '=', 'exit')->where('upi_no', '=', $key->upi_no)
                 ->get());
@@ -152,7 +152,7 @@ class DeviceRecordController extends Controller
                         $level = $level . "\nhasGuardian";
                         $faceR = FaceRecord::where('upi_no', '=', $upi_no)
                             ->where('time_taken', '>', (string)Carbon::today()->valueOf())
-                            ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+                            ->where('time_taken', '<', (string)Carbon::today(6, 0, 0)->valueOf())
                             ->where('status', '=', 'enter')
                             ->orderby('id', 'DESC')
                             ->first();
@@ -186,7 +186,7 @@ class DeviceRecordController extends Controller
 
                 /////////////////////////
             } else if ($enter == 1 && $exit == 0 && $mnull == 1) {
-                $r = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
+                $r = FaceRecord::where('time_taken', '>', (string)Carbon::today(6, 0, 01)->valueOf())
                     ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                     ->whereNull('status')->where('upi_no', '=', $key->upi_no)
                     ->get()->first();
