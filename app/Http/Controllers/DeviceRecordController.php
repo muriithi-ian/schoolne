@@ -152,7 +152,7 @@ class DeviceRecordController extends Controller
                         $level = $level . "\nhasGuardian";
                         $faceR = FaceRecord::where('upi_no', '=', $upi_no)
                             ->where('time_taken', '>', (string)Carbon::today()->valueOf())
-                            ->where('time_taken', '<', (string)Carbon::today()->addHours(9)->valueOf())
+                            ->where('time_taken', '<', (string)Carbon::today()->valueOf())
                             ->where('status', '=', 'enter')
                             ->orderby('id', 'DESC')
                             ->first();
@@ -186,7 +186,7 @@ class DeviceRecordController extends Controller
 
                 /////////////////////////
             } else if ($enter == 1 && $exit == 0 && $mnull == 1) {
-                $r = FaceRecord::where('time_taken', '>=', (string)Carbon::today()->addHours(9)->valueOf())
+                $r = FaceRecord::where('time_taken', '=', (string)Carbon::today()->valueOf())
                     ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                     ->whereNull('status')->where('upi_no', '=', $key->upi_no)
                     ->get()->first();
@@ -764,11 +764,11 @@ class DeviceRecordController extends Controller
         if ($sms_time == 'first') {
             $templete1 = Smstemplete::where('id', '=', 1)->get()->pluck('content');
 
-            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . "  UPI:" . $face_record->student->upi_no . " has arrived at school with a temperature of $temp " . $templete1[0];
+            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . "  UPI:" . $face_record->student->upi_no . " has left school at $new_time with a temperature of $temp " . $templete1[0];
             // dd($templete);
         } else {
             $templete1 = Smstemplete::where('id', '=', 2)->get()->pluck('content');
-            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . " UPI:" . $face_record->student->upi_no . " has left school for home with a temperature of $temp " . $templete1[0];
+            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . " UPI:" . $face_record->student->upi_no . " has left school at $new_time for home with a temperature of $temp " . $templete1[0];
         }
 
 
