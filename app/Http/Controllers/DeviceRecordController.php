@@ -59,7 +59,7 @@ class DeviceRecordController extends Controller
             $school=" 4";
         }
         $record = new DeviceRecord();
-        $record->data = 'HeartBeat|'.env('APP_NAME').$school.'|' . implode("|", $request->all());
+        $record->data = 'HeartBeat|'.env('APP_NAME').' '.(string)$request->school_id.'|' . implode("|", $request->all());
         $record->save();
         return json_encode([
             'code' => 200,
@@ -92,7 +92,7 @@ class DeviceRecordController extends Controller
                 ->where('status', '=', 'enter')->where('upi_no', '=', $key->upi_no)
                 ->get());
             $exit = sizeof(FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
-                ->where('time_taken', '>', (string)Carbon::today('06:00:01')->valueOf())
+                ->where('time_taken', '<', (string)Carbon::today('06:00:01')->valueOf())
                 ->where('status', '=', 'exit')->where('upi_no', '=', $key->upi_no)
                 ->get());
             $mnull = sizeof(FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
