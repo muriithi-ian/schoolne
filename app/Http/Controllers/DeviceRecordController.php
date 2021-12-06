@@ -88,11 +88,11 @@ class DeviceRecordController extends Controller
         //        dd($records);
         foreach ($records as $key) {
             $enter = sizeof(FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
-                ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+                ->where('time_taken', '<', (string)Carbon::today('06:00:00')->valueOf())
                 ->where('status', '=', 'enter')->where('upi_no', '=', $key->upi_no)
                 ->get());
             $exit = sizeof(FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
-                ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+                ->where('time_taken', '>', (string)Carbon::today('06:00:01')->valueOf())
                 ->where('status', '=', 'exit')->where('upi_no', '=', $key->upi_no)
                 ->get());
             $mnull = sizeof(FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
