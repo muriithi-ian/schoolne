@@ -48,16 +48,6 @@ class DeviceRecordController extends Controller
      */
     public function store(Request $request)
     {
-        $school="device ".$request->school_id;
-        if($request->school_id==1){
-            $school=" 1";
-        }else if($request->school_id==2){
-            $school=" 2";
-        }else if($request->school_id==3){
-            $school=" 3";
-        }else if($request->school_id==4){
-            $school=" 4";
-        }
         $record = new DeviceRecord();
         $record->data = 'HeartBeat|'.env('APP_NAME').'-'.(string)$request->school_id.'|' . implode("|", $request->all());
         $record->save();
@@ -110,13 +100,13 @@ class DeviceRecordController extends Controller
             }
             if ($enter == 0 && $exit == 0 && $mnull > 1) {
                 $r = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
-                    ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+                    ->where('time_taken', '<', (string)Carbon::today('06:00:00')->valueOf())
                     ->whereNull('status')->where('upi_no', '=', $key->upi_no)
                     ->get()->first();
                 if ($r) {
                     $r->status = 'enter';
                     $r->save();
-                    $x = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
+                    $x = FaceRecord::where('time_taken', '>', (string)Carbon::today('06:00:01')->valueOf())
                         ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                         ->whereNull('status')->where('upi_no', '=', $key->upi_no)
                         ->get()->first();
@@ -127,7 +117,7 @@ class DeviceRecordController extends Controller
                 }
             } else if ($enter == 0 && $exit == 0 && $mnull == 1) {
                 $r = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
-                    ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+                    ->where('time_taken', '<', (string)Carbon::today('06:00:01')->valueOf())
                     ->whereNull('status')->where('upi_no', '=', $key->upi_no)
                     ->get()->first();
                 if ($r) {
