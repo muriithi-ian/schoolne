@@ -142,7 +142,7 @@ class DeviceRecordController extends Controller
                         $level = $level . "\nhasGuardian";
                         $faceR = FaceRecord::where('upi_no', '=', $upi_no)
                             ->where('time_taken', '>', (string)Carbon::today()->valueOf())
-                            ->where('time_taken', '<', (string)Carbon::today()->addHour(9)->valueOf())
+                            ->where('time_taken', '<', (string)Carbon::today()->valueOf())
                             ->where('status', '=', 'enter')
                             ->orderby('id', 'DESC')
                             ->first();
@@ -754,7 +754,7 @@ class DeviceRecordController extends Controller
         if ($sms_time == 'first') {
             $templete1 = Smstemplete::where('id', '=', 1)->get()->pluck('content');
 
-            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . "  UPI:" . $face_record->student->upi_no . " has arrived at school at $new_time" . $templete1[0];
+            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . "  UPI:" . $face_record->student->upi_no . " has left school for home at $new_time" . $templete1[0];
             // dd($templete);
         } else {
             $templete1 = Smstemplete::where('id', '=', 2)->get()->pluck('content');
