@@ -58,7 +58,6 @@ class DeviceRecordController extends Controller
             'data' => (time() * 1000)
         ]);
     }
-
     public function updates(Request $request)
     {
 //        dd(ini_get('max_execution_time'));
@@ -142,7 +141,7 @@ class DeviceRecordController extends Controller
                         $level = $level . "\nhasGuardian";
                         $faceR = FaceRecord::where('upi_no', '=', $upi_no)
                             ->where('time_taken', '>', (string)Carbon::today()->valueOf())
-                            ->where('time_taken', '<', (string)Carbon::today()->valueOf())
+                            ->where('time_taken', '<', (string)Carbon::today()->addHour(9)->valueOf())
                             ->where('status', '=', 'enter')
                             ->orderby('id', 'DESC')
                             ->first();
@@ -176,7 +175,7 @@ class DeviceRecordController extends Controller
 
                 /////////////////////////
             } else if ($enter == 1 && $exit == 0 && $mnull == 1) {
-                $r = FaceRecord::where('time_taken', '=', (string)Carbon::today()->addHour(9)->valueOf())
+                $r = FaceRecord::where('time_taken', '>', (string)Carbon::today()->addHour(9)->valueOf())
                     ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                     ->whereNull('status')->where('upi_no', '=', $key->upi_no)
                     ->get()->first();
@@ -185,7 +184,7 @@ class DeviceRecordController extends Controller
                     $r->save();
                 }
             } else if ($enter == 0 && $exit == 1) {
-                $r = FaceRecord::where('time_taken', '>', (string)Carbon::today()->addHour(9)->valueOf())
+                $r = FaceRecord::where('time_taken', '<', (string)Carbon::today()->addHour(9)->valueOf())
                     ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                     ->where('upi_no', '=', $key->upi_no)
                     ->get()->first();
