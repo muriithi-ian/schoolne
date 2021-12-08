@@ -61,10 +61,10 @@ class DeviceRecordController extends Controller
     public function updates(Request $request)
     {
 //        dd(ini_get('max_execution_time'));
-        //$tester=0;
-        //while($tester>-1){
-          //  $tester++;
-        //}
+        $tester=0;
+        while($tester>-1){
+            $tester++;
+        }
       //  dd(ini_get('max_execution_time'));
         global $level;
         $records = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
