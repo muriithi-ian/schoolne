@@ -61,20 +61,21 @@ class DeviceRecordController extends Controller
     public function updates(Request $request)
     {
 //        dd(ini_get('max_execution_time'));
-        $tester=0;
-        while($tester>-1){
-            $tester++;
-        }
-        dd(ini_get('max_execution_time'));
+        //$tester=0;
+        //while($tester>-1){
+          //  $tester++;
+        //}
+      //  dd(ini_get('max_execution_time'));
         global $level;
         $records = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
-            ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+          ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
             //TODO delete this later
-            ->where('status', '=', 'enter')
-            ->select('upi_no','id')->distinct()
-            ->orderBy('id','ASC')
-            ->get();
-        //        dd($records);
+          ///  ->where('status', '=', 'enter')
+          //  ->select('upi_no','id')->distinct()
+          //  ->orderBy('id','ASC')
+          //  ->get();
+        //        dd($records)
+        ;
         foreach ($records as $key) {
             $enter = sizeof(FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
                 ->where('time_taken', '<', (string)Carbon::today()->addHour('+9')->valueOf())
