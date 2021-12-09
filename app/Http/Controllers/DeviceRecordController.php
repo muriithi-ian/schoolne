@@ -186,31 +186,31 @@ class DeviceRecordController extends Controller
                     $r->save();
                 }
             }
-            // else if ($enter == 0 && $exit == 1) {
-            //     $r = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
-            //         ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
-            //         ->where('upi_no', '=', $key->upi_no)
-            //         ->get()->first();
-            //     if ($r) {
-            //         $r->status = 'enter';
-            //         $r->save();
-            //     }
-            //     $t = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
-            //         ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
-            //         ->where('status', '=', 'exit')->where('upi_no', '=', $key->upi_no)
-            //         ->get()->first();
+            else if ($enter == 0 && $exit == 1) {
+                $r = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
+                    ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+                    ->where('upi_no', '=', $key->upi_no)
+                    ->get()->first();
+                if ($r) {
+                    $r->status = 'enter';
+                    $r->save();
+                }
+                $t = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
+                    ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+                    ->where('status', '=', 'exit')->where('upi_no', '=', $key->upi_no)
+                    ->get()->first();
 
-            //     if (!$t) {
-            //         $y = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
-            //             ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
-            //             ->whereNull('status')->where('upi_no', '=', $key->upi_no)
-            //             ->get()->first();
-            //         if ($y) {
-            //             $y->status = 'exit';
-            //             $y->save();
-            //         }
-            //     }
-            // }
+                if (!$t) {
+                    $y = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
+                        ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+                        ->whereNull('status')->where('upi_no', '=', $key->upi_no)
+                        ->get()->first();
+                    if ($y) {
+                        $y->status = 'exit';
+                        $y->save();
+                    }
+                }
+            }
         }
         dd('done' . $level);
     }
