@@ -65,23 +65,22 @@ class DeviceRecordController extends Controller
         while($tester>-1){
             $tester++;
         }
-      //  dd(ini_get('max_execution_time'));
+        dd(ini_get('max_execution_time'));
         global $level;
         $records = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
-          ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+            ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
             //TODO delete this later
-          ///  ->where('status', '=', 'enter')
-          //  ->select('upi_no','id')->distinct()
-          //  ->orderBy('id','ASC')
-          //  ->get();
-        //        dd($records)
-        ;
+            ->where('status', '=', 'enter')
+            ->select('upi_no','id')->distinct()
+            ->orderBy('id','ASC')
+            ->get();
+        //        dd($records);
         foreach ($records as $key) {
-            $enter = sizeof(FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
-                ->where('time_taken', '<', (string)Carbon::today()->addHour('+9')->valueOf())
+            $enter = sizeof(FaceRecord::where('time_taken', '>', (string)(Carbon::today()->valueOf()))
+                ->where('time_taken', '<', (string)(Carbon::today()->addHour(9))->valueOf())
                 ->where('status', '=', 'enter')->where('upi_no', '=', $key->upi_no)
                 ->get());
-            $exit = sizeof(FaceRecord::where('time_taken', '>', (string)Carbon::today()->addHour('+9')->valueOf())
+            $exit = sizeof(FaceRecord::where('time_taken', '>', (string)(Carbon::today()->addHour(9))->valueOf())
                 ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                 ->where('status', '=', 'exit')->where('upi_no', '=', $key->upi_no)
                 ->get());
@@ -98,38 +97,39 @@ class DeviceRecordController extends Controller
                 //                    ->get());
 
             }
-            if ($enter == 0 && $exit == 0 && $mnull > 1) {
-                $r = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
-                    ->where('time_taken', '<', (string)Carbon::today()->addHour('+9')->valueOf())
-                    ->whereNull('status')->where('upi_no', '=', $key->upi_no)
-                    ->get()->first();
-                if ($r) {
-                    $r->status = 'enter';
-                    $r->save();
-                    $x = FaceRecord::where('time_taken', '>', (string)Carbon::today()->addHour('+9')->valueOf())
-                        ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
-                        ->whereNull('status')->where('upi_no', '=', $key->upi_no)
-                        ->get()->first();
-                    if ($x) {
-                        $r->status = 'exit';
-                        $r->save();
-                    }
-                }
-            } else if ($enter == 0 && $exit == 0 && $mnull == 1) {
-                $r = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
-                    ->where('time_taken', '<', (string)Carbon::today()->addHour('+9')->valueOf())
-                    ->whereNull('status')->where('upi_no', '=', $key->upi_no)
-                    ->get()->first();
-                if ($r) {
-                    $r->status = 'enter';
-                    $r->save();
-                }
-            } else if ($enter == 1) {
-                //TODO only today
-//                Send sms to parents
-                $upi_no = $key->upi_no;
-                $student = Student::where('upi_no', '=', $upi_no)->get()->first();
-                // dd($student->id);
+             if ($enter == 0 && $exit == 0 && $mnull > 1) {
+                 $r = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
+                     ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+                     ->whereNull('status')->where('upi_no', '=', $key->upi_no)
+                     ->get()->first();
+                 if ($r) {
+                     $r->status = 'enter';
+                     $r->save();
+                     $x = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
+                         ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+                         ->whereNull('status')->where('upi_no', '=', $key->upi_no)
+                         ->get()->first();
+                     if ($x) {
+                         $r->status = 'exit';
+                         $r->save();
+                     }
+                 }
+             } else if ($enter == 0 && $exit == 0 && $mnull == 1) {
+                 $r = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
+                     ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+                     ->whereNull('status')->where('upi_no', '=', $key->upi_no)
+                     ->get()->first();
+                 if ($r) {
+                     $r->status = 'enter';
+                     $r->save();
+                 }
+             } else if ($enter == 1) {
+                 //TODO only today
+ //                Send sms to parents
+                 $upi_no = $key->upi_no;
+                 $student = Student::where('upi_no', '=', $upi_no)->get()->first();
+                 // dd($student->id);
+
                 if ($student != null) {
 
                     $level = $level . "\nisStudent";
@@ -142,7 +142,7 @@ class DeviceRecordController extends Controller
                         $level = $level . "\nhasGuardian";
                         $faceR = FaceRecord::where('upi_no', '=', $upi_no)
                             ->where('time_taken', '>', (string)Carbon::today()->valueOf())
-                            ->where('time_taken', '<', (string)Carbon::today()->addHour('+9')->valueOf())
+                            ->where('time_taken', '<', (string)(Carbon::today()->addHour(9))->valueOf())
                             ->where('status', '=', 'enter')
                             ->orderby('id', 'DESC')
                             ->first();
@@ -175,39 +175,39 @@ class DeviceRecordController extends Controller
 
 
                 /////////////////////////
-            } else if ($enter == 1 && $exit == 0 && $mnull == 1) {
-                $r = FaceRecord::where('time_taken', '>', (string)Carbon::today()->addHour('+9')->valueOf())
-                    ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
-                    ->whereNull('status')->where('upi_no', '=', $key->upi_no)
-                    ->get()->first();
-                if ($r) {
-                    $r->status = 'exit';
-                    $r->save();
-                }
-            } else if ($enter == 0 && $exit == 1) {
-                $r = FaceRecord::where('time_taken', '<', (string)Carbon::today()->addHour('+9')->valueOf())
-                    ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
-                    ->where('upi_no', '=', $key->upi_no)
-                    ->get()->first();
-                if ($r) {
-                    $r->status = 'enter';
-                    $r->save();
-                }
-                $t = FaceRecord::where('time_taken', '>', (string)Carbon::today()->addHour('+9')->valueOf())
-                    ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
-                    ->where('status', '=', 'exit')->where('upi_no', '=', $key->upi_no)
-                    ->get()->first();
+            // } else if ($enter == 1 && $exit == 0 && $mnull == 1) {
+            //     $r = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
+            //         ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+            //         ->whereNull('status')->where('upi_no', '=', $key->upi_no)
+            //         ->get()->first();
+            //     if ($r) {
+            //         $r->status = 'exit';
+            //         $r->save();
+            //     }
+            // } else if ($enter == 0 && $exit == 1) {
+            //     $r = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
+            //         ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+            //         ->where('upi_no', '=', $key->upi_no)
+            //         ->get()->first();
+            //     if ($r) {
+            //         $r->status = 'enter';
+            //         $r->save();
+            //     }
+            //     $t = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
+            //         ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+            //         ->where('status', '=', 'exit')->where('upi_no', '=', $key->upi_no)
+            //         ->get()->first();
 
-                if (!$t) {
-                    $y = FaceRecord::where('time_taken', '>', (string)Carbon::today()->addHour('+9')->valueOf())
-                        ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
-                        ->whereNull('status')->where('upi_no', '=', $key->upi_no)
-                        ->get()->first();
-                    if ($y) {
-                        $y->status = 'exit';
-                        $y->save();
-                    }
-                }
+            //     if (!$t) {
+            //         $y = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
+            //             ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+            //             ->whereNull('status')->where('upi_no', '=', $key->upi_no)
+            //             ->get()->first();
+            //         if ($y) {
+            //             $y->status = 'exit';
+            //             $y->save();
+            //         }
+            //     }
             }
         }
         dd('done' . $level);
@@ -315,8 +315,8 @@ class DeviceRecordController extends Controller
                             //check if its the second record
 
                             if (sizeof(FaceRecord::where('upi_no', '=', $upi_no)
-                                    ->where('time_taken', '>', (string)Carbon::today()->addHour('+9')->valueOf())
-                                    ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+                                    ->where('time_taken', '>', (string)(Carbon::today()->addHour(9))->valueOf())
+                                    ->where('time_taken', '<', (string)Carbon::today()->valueOf())
                                     ->get()) == 1) {
                                 $level = $level . "\nisExit";
                                 // dd('second');
@@ -395,7 +395,7 @@ class DeviceRecordController extends Controller
                             //check if its the second record
 
                             if (sizeof(FaceRecord::where('upi_no', '=', $upi_no)
-                                    ->where('time_taken', '>', (string)Carbon::today()->addHour('+9')->valueOf())
+                                    ->where('time_taken', '>', (string)Carbon::today()->valueOf())
                                     ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                                     ->get()) == 1) {
                                 $level = $level . "\nisExit";
@@ -461,7 +461,7 @@ class DeviceRecordController extends Controller
                             //check if its the second record
 
                             if (sizeof(StaffFaceRecord::where('reg_no', '=', $upi_no)
-                                    ->where('time_taken', '>', (string)Carbon::today()->addHour('+9')->valueOf())
+                                    ->where('time_taken', '>', (string)Carbon::today()->valueOf())
                                     ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                                     ->get()) == 1) {
                                 // dd('second');
@@ -754,11 +754,11 @@ class DeviceRecordController extends Controller
         if ($sms_time == 'first') {
             $templete1 = Smstemplete::where('id', '=', 1)->get()->pluck('content');
 
-            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . "  UPI:" . $face_record->student->upi_no . " has arrived at school at $new_time" . $templete1[0];
+            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . "  UPI:" . $face_record->student->upi_no . " has arrived at school at $new_time with a temperature of $temp " . $templete1[0];
             // dd($templete);
         } else {
             $templete1 = Smstemplete::where('id', '=', 2)->get()->pluck('content');
-            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . " UPI:" . $face_record->student->upi_no . " has left school for home at $new_time" . $templete1[0];
+            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . " UPI:" . $face_record->student->upi_no . " has left school for home at $new_time with a temperature of $temp " . $templete1[0];
         }
 
 
@@ -861,11 +861,11 @@ class DeviceRecordController extends Controller
         if ($sms_time == 'first') {
             $templete1 = Smstemplete::where('id', '=', 1)->get()->pluck('content');
 
-            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . "  UPI:" . $face_record->student->upi_no . " has arrived at school at $new_time" . $templete1[0];
+            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . "  UPI:" . $face_record->student->upi_no . " has left school for home at $new_time with a temperature of $temp " . $templete1[0];
             // dd($templete);
         } else {
             $templete1 = Smstemplete::where('id', '=', 2)->get()->pluck('content');
-            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . " UPI:" . $face_record->student->upi_no . " has left school for home at $new_time" . $templete1[0];
+            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . " UPI:" . $face_record->student->upi_no . " has left school for home at $new_time with a temperature of $temp " . $templete1[0];
         }
 
 
