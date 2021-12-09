@@ -317,7 +317,7 @@ class DeviceRecordController extends Controller
                             //check if its the second record
 
                             if (sizeof(FaceRecord::where('upi_no', '=', $upi_no)
-                                    ->where('time_taken', '>', (string)(Carbon::today()->addHour(9))->valueOf())
+                                    ->where('time_taken', '>', (string)Carbon::today()->addHour(9)->valueOf())
                                     ->where('time_taken', '<', (string)Carbon::today()->valueOf())
                                     ->get()) == 1) {
                                 $level = $level . "\nisExit";
