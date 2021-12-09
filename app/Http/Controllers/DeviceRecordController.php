@@ -104,7 +104,7 @@ class DeviceRecordController extends Controller
                      ->whereNull('status')->where('upi_no', '=', $key->upi_no)
                      ->get()->first();
                  if ($r) {
-                     $r->status = 'enter';
+                     $r->status = 'exit';
                      $r->save();
                      $x = FaceRecord::where('time_taken', '>', (string)Carbon::today()->addHour(9)->valueOf())
                          ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
@@ -121,7 +121,7 @@ class DeviceRecordController extends Controller
                      ->whereNull('status')->where('upi_no', '=', $key->upi_no)
                      ->get()->first();
                  if ($r) {
-                     $r->status = 'enter';
+                     $r->status = 'exit';
                      $r->save();
                  }
              } else if ($enter == 1) {
@@ -192,7 +192,7 @@ class DeviceRecordController extends Controller
                     ->where('upi_no', '=', $key->upi_no)
                     ->get()->first();
                 if ($r) {
-                    $r->status = 'enter';
+                    $r->status = 'exit';
                     $r->save();
                 }
                 $t = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
@@ -348,7 +348,7 @@ class DeviceRecordController extends Controller
                         $level = $level . "\nnoFace";
                         //no record
                         // dd('first');
-                        $faceRecord->status = 'enter';
+                        $faceRecord->status = 'exit';
 
                         $faceRecord->has_parent = 'yes';
                         $faceRecord->save();
@@ -420,7 +420,7 @@ class DeviceRecordController extends Controller
                         $level = $level . "\nnoFace";
                         //no record
                         // dd('first');
-                        $faceRecord->status = 'enter';
+                        $faceRecord->status = 'exit';
                         $faceRecord->has_parent = 'no';
                         $faceRecord->save();
                     }
@@ -478,7 +478,7 @@ class DeviceRecordController extends Controller
                     } else {
                         //no record
                         // dd('first');
-                        $faceRecord->status = 'enter';
+                        $faceRecord->status = 'exit';
                         $faceRecord->save();
                     }
                 }
