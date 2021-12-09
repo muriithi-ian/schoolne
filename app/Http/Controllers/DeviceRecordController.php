@@ -143,7 +143,7 @@ class DeviceRecordController extends Controller
                         $level = $level . "\nhasGuardian";
                         $faceR = FaceRecord::where('upi_no', '=', $upi_no)
                             ->where('time_taken', '>', (string)Carbon::today()->valueOf())
-                            ->where('time_taken', '<', (string)Carbon::today()->addHour(9)->valueOf())
+                            ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                             ->where('status', '=', 'enter')
                             ->orderby('id', 'DESC')
                             ->first();
@@ -217,8 +217,7 @@ class DeviceRecordController extends Controller
 
     public $level = "Start---\n";
 
-    public function recordUpload(Request $request)
-    {
+    public function recordUpload(Request $request){
         $data = json_decode($request->data, TRUE);
         // dd($data['eno']);
         $coointer = 0;
@@ -292,7 +291,7 @@ class DeviceRecordController extends Controller
                     $level = $level . "\nhasGuardian";
                     $faceR = FaceRecord::where('upi_no', '=', $upi_no)
                         ->where('time_taken', '>', (string)Carbon::today()->valueOf())
-                        ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+                        ->where('time_taken', '<', (string)Carbon::today()->addHour(9)->valueOf())
                         ->orderby('id', 'DESC')
                         ->first();
                     // dd($faceR);
@@ -318,7 +317,7 @@ class DeviceRecordController extends Controller
 
                             if (sizeof(FaceRecord::where('upi_no', '=', $upi_no)
                                     ->where('time_taken', '>', (string)Carbon::today()->addHour(9)->valueOf())
-                                    ->where('time_taken', '<', (string)Carbon::today()->valueOf())
+                                    ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                                     ->get()) == 1) {
                                 $level = $level . "\nisExit";
                                 // dd('second');
