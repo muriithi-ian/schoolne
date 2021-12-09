@@ -70,10 +70,11 @@ class DeviceRecordController extends Controller
         $records = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
             ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
             //TODO delete this later
-            ->where('status', '=', 'enter')
-            ->select('upi_no','id')->distinct()
-            ->orderBy('id','ASC')
-            ->get();
+            // ->where('status', '=', 'enter')
+            // ->select('upi_no','id')->distinct()
+            // ->orderBy('id','ASC')
+            // ->get()
+            ;
         //        dd($records);
         foreach ($records as $key) {
             $enter = sizeof(FaceRecord::where('time_taken', '>', (string)(Carbon::today()->valueOf()))
@@ -99,13 +100,13 @@ class DeviceRecordController extends Controller
             }
              if ($enter == 0 && $exit == 0 && $mnull > 1) {
                  $r = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
-                     ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+                     ->where('time_taken', '<', (string)(Carbon::today()->addHour(9))->valueOf())
                      ->whereNull('status')->where('upi_no', '=', $key->upi_no)
                      ->get()->first();
                  if ($r) {
                      $r->status = 'enter';
                      $r->save();
-                     $x = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
+                     $x = FaceRecord::where('time_taken', '>', (string)(Carbon::today()->addHour(9))->valueOf())
                          ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                          ->whereNull('status')->where('upi_no', '=', $key->upi_no)
                          ->get()->first();
@@ -116,7 +117,7 @@ class DeviceRecordController extends Controller
                  }
              } else if ($enter == 0 && $exit == 0 && $mnull == 1) {
                  $r = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
-                     ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+                     ->where('time_taken', '<', (string)(Carbon::today()->addhour(9))->valueOf())
                      ->whereNull('status')->where('upi_no', '=', $key->upi_no)
                      ->get()->first();
                  if ($r) {
@@ -175,16 +176,17 @@ class DeviceRecordController extends Controller
 
 
                 /////////////////////////
-            // } else if ($enter == 1 && $exit == 0 && $mnull == 1) {
-            //     $r = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
-            //         ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
-            //         ->whereNull('status')->where('upi_no', '=', $key->upi_no)
-            //         ->get()->first();
-            //     if ($r) {
-            //         $r->status = 'exit';
-            //         $r->save();
-            //     }
-            // } else if ($enter == 0 && $exit == 1) {
+            } else if ($enter == 1 && $exit == 0 && $mnull == 1) {
+                $r = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
+                    ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+                    ->whereNull('status')->where('upi_no', '=', $key->upi_no)
+                    ->get()->first();
+                if ($r) {
+                    $r->status = 'exit';
+                    $r->save();
+                }
+            }
+            // else if ($enter == 0 && $exit == 1) {
             //     $r = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
             //         ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
             //         ->where('upi_no', '=', $key->upi_no)
@@ -208,7 +210,7 @@ class DeviceRecordController extends Controller
             //             $y->save();
             //         }
             //     }
-            }
+            // }
         }
         dd('done' . $level);
     }
