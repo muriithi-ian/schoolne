@@ -70,10 +70,10 @@ class DeviceRecordController extends Controller
         $records = FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
             ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
             //TODO delete this later
-            // ->where('status', '=', 'enter')
-            // ->select('upi_no','id')->distinct()
-            // ->orderBy('id','ASC')
-            // ->get()
+            ->where('status', '=', 'enter')
+            ->select('upi_no','id')->distinct()
+            ->orderBy('id','ASC')
+            ->get()
             ;
         //        dd($records);
         foreach ($records as $key) {
