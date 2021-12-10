@@ -304,7 +304,7 @@ class DeviceRecordController extends Controller
                         ->orderby('id', 'DESC')
                         ->first();
                     // dd($faceR);
-                    if ($faceR != null) {
+                    if ($faceR = null) {
                         $level = $level . "\nhasPrevFace";
                         //we have a record
                         //check if a record is already present within the past 30 minutes
@@ -325,7 +325,7 @@ class DeviceRecordController extends Controller
                             //check if its the second record
 
                             if (sizeof(FaceRecord::where('upi_no', '=', $upi_no)
-                                    ->where('time_taken', '>', (string)Carbon::today()->addHours(9)->valueOf())
+                                    ->where('time_taken', '>=', (string)Carbon::today()->addHours(9)->valueOf())
                                     ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                                     ->get()) == 1) {
                                 $level = $level . "\nisExit";
