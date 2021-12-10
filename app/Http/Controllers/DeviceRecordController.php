@@ -298,143 +298,146 @@ class DeviceRecordController extends Controller
                 $guardian = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->first();
                 if ($guardian != null) {
                     $level = $level . "\nhasGuardian";
-                    $faceR = FaceRecord::where('upi_no', '=', $upi_no)
-                        ->where('time_taken', '>', (string)Carbon::today()->valueOf())
-                        ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
-                        ->orderby('id', 'DESC')
-                        ->first();
-                    // dd($faceR);
-                    if ($faceR != null) {
-                        $level = $level . "\nhasPrevFace";
-                        //we have a record
-                        //check if a record is already present within the past 30 minutes
-                        $input = $faceR->time_taken;
-                        $input2 = $time_taken;
-                        $input = floor($input / 1000 / 60);
-                        $input2 = floor($input2 / 1000 / 60);
-                        if ($input2 - $input < 210) {
-                            $level = $level . "\nisSlessThan1Minute";
+                    if (sizeof(FaceRecord::where('upi_no', '=', $upi_no)
+                                    ->where('time_taken', '>', (string)Carbon::today()->valueOf())
+                                    ->where('time_taken', '<', (string)Carbon::today()->addhours(9)->valueOf())
+                                    ->get()) == 1){
+                                    $level=$level . "\nBefore 9am";
+                                    
+                                    $faceR = FaceRecord::where('upi_no', '=', $upi_no)
+                                     ->where('time_taken', '>', (string)Carbon::today()->valueOf())
+                                     ->where('time_taken', '<', (string)Carbon::today()->addHours(9)->valueOf())
+                                     ->orderby('id', 'DESC')
+                                     ->first();
+                                    if ($faceR != null) {
+                                        $level = $level . "\nhasPreviousFace";
+                                        //we have a record
+                                        //check if a record is already present within the past 30 minutes
+                                        $input = $faceR->time_taken;
+                                        $input2 = $time_taken;
+                                        $input = floor($input / 1000 / 60);
+                                        $input2 = floor($input2 / 1000 / 60);
+                                        if ($input2 - $input < 210) {
+                                            $level = $level . "\nisSlessThan1Minute";
 
-                            // dd('<10');
-                            //recent record taken
-                            //Ignore
-                            // $faceRecord->save();
-                            // $this->sendSms($guardian,$faceRecord,$time_taken,'second');
-                        } else {
-                            $level = $level . "\nisgreaterThan1Minute";
-                            //check if its the second record
-
-                            if (sizeof(FaceRecord::where('upi_no', '=', $upi_no)
+                                            // dd('<10');
+                                            //recent record taken
+                                            //Ignore
+                                            // $faceRecord->save();
+                                            // $this->sendSms($guardian,$faceRecord,$time_taken,'second');
+                                        } else {
+                                            $level = $level . "\nisgreaterThan1Minute";
+                                            //check if its the second record
+                                            
+                                                $level = $level . "\nisExit before 9am";
+                                                // dd('second');
+                                                $faceRecord->status = 'exit';
+                                                $faceRecord->has_parent = 'yes';
+                                                $faceRecord->save();
+                                                //disable sms
+                //                                $guardians = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get();
+                //                                foreach ($guardians as $key) {
+                //                                    $this->sendPremiumSms($key, $faceRecord, $time_taken, 'second');
+                //                                }
+                                                //send to one guardian
+                                                $guardian = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get()->first();
+                                                $this->sendSms($guardian, $faceRecord, $time_taken, 'second',$student);
+                                            
+                                        }
+                                    }
+                                    else{
+                                        $level = $level . "\nisEntry Before 9am";
+        
+                                        $faceRecord->status = 'enter';
+                                        $faceRecord->has_parent = 'yes';
+                                        $faceRecord->save();
+        
+                                        $guardian = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get()->first();
+                                        $this->sendSms($guardian, $faceRecord, $time_taken, 'first',$student);
+                                            }
+                                }
+                                elseif(sizeof(FaceRecord::where('upi_no', '=', $upi_no)
                                     ->where('time_taken', '>=', (string)Carbon::today()->addHours(9)->valueOf())
                                     ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
-                                    ->get()) == 1) {
-                                $level = $level . "\nisExit";
-                                // dd('second');
-                                $faceRecord->status = 'exit';
-                                $faceRecord->has_parent = 'yes';
-                                $faceRecord->save();
-                                //disable sms
-//                                $guardians = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get();
-//                                foreach ($guardians as $key) {
-//                                    $this->sendPremiumSms($key, $faceRecord, $time_taken, 'second');
-//                                }
-                                //send to one guardian
-                                $guardian = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get()->first();
-                                $this->sendSms($guardian, $faceRecord, $time_taken, 'second',$student);
-                            } else {
-                                $level = $level . "\nisMore than 2 times" . sizeof(FaceRecord::where('upi_no', '=', $upi_no)
-                                        ->whereDate('created_at', Carbon::today())
-                                        ->get());
-                                // dd(sizeof(FaceRecord::where('upi_no', '=', $upi_no)
-                                // ->whereDate('created_at', Carbon::today())
-                                // ->get()));
-
-                                $faceRecord->has_parent = 'yes';
-                                $faceRecord->save();
-                            }
-                        }
-                    } else {
-                        $level = $level . "\nnoFace";
-                        //no record
-                        // dd('first');
-                        $faceRecord->status = 'exit';
-
-                        $faceRecord->has_parent = 'yes';
-                        $faceRecord->save();
-                        //disable sms $guardians = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get();
-//
-//                        $guardians = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get();
-//                        foreach ($guardians as $key) {
-//                            $this->sendPremiumSms($key, $faceRecord, $time_taken, 'first');
-//                        }
-                        //Send 1 sms
-                        $guardian = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get()->first();
-
-                            $this->sendSms($guardian, $faceRecord, $time_taken, 'first',$student);
-
-                    }
-
-                    // return back()->with('success', 'Sms sent successfully');
-                } else {
-                    $level = $level . "\nnoGuardian";
-
-                    $faceR = FaceRecord::where('upi_no', '=', $upi_no)
-                        ->where('time_taken', '>', (string)Carbon::today()->valueOf())
-                        ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
-                        ->orderby('id', 'DESC')
-                        ->first();
-                    // dd($faceR);
-                    if ($faceR != null) {
-                        $level = $level . "\nhasPrevFace";
-                        //we have a record
-                        //check if a record is already present within the past 30 minutes
-                        $input = $faceR->time_taken;
-                        $input2 = $time_taken;
-                        $input = floor($input / 1000 / 60);
-                        $input2 = floor($input2 / 1000 / 60);
-                        if ($input2 - $input < 210) {
-                            $level = $level . "\nisSlessThan1Minute";
-
-                            // dd('<10');
-                            //recent record taken
-                            //Ignore
-                            // $faceRecord->save();
-                            // $this->sendSms($guardian,$faceRecord,$time_taken,'second');
-                        } else {
-                            $level = $level . "\nisgreaterThan1Minute";
-                            //check if its the second record
-
-                            if (sizeof(FaceRecord::where('upi_no', '=', $upi_no)
-                                    ->where('time_taken', '>', (string)Carbon::today()->valueOf())
-                                    ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
-                                    ->get()) == 1) {
-                                $level = $level . "\nisExit";
-                                // dd('second');
-                                $faceRecord->status = 'exit';
-
-                                $faceRecord->has_parent = 'no';
-                                $faceRecord->save();
-                            } else {
-                                $level = $level . "\nisMore than 2 times" . sizeof(FaceRecord::where('upi_no', '=', $upi_no)
-                                        ->whereDate('created_at', Carbon::today())
-                                        ->get());
-                                // dd(sizeof(FaceRecord::where('upi_no', '=', $upi_no)
-                                // ->whereDate('created_at', Carbon::today())
-                                // ->get()));
-                                $faceRecord->has_parent = 'no';
-                                $faceRecord->save();
-                            }
-                        }
-                    } else {
-                        $level = $level . "\nnoFace";
-                        //no record
-                        // dd('first');
-                        $faceRecord->status = 'enter';
-                        $faceRecord->has_parent = 'no';
-                        $faceRecord->save();
-                    }
-                }
-            } else {
+                                    ->get()) == 1){
+                                                $level = $level . "\nisExit After 9am";
+                                                // dd('second');
+                                                $faceRecord->status = 'exit';
+                                                $faceRecord->has_parent = 'yes';
+                                                $faceRecord->save();
+                                                $guardian = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get()->first();
+                                                $this->sendSms($guardian, $faceRecord, $time_taken, 'second',$student);
+                                }
+                                else{
+                                    $level=$level . "\n Tumekosea mahali";
+                                }
+                            }            
+                else {
+                        $level = $level . "\noGuardian";
+                        if (sizeof(FaceRecord::where('upi_no', '=', $upi_no)
+                                        ->where('time_taken', '>', (string)Carbon::today()->valueOf())
+                                        ->where('time_taken', '<', (string)Carbon::today()->addhours(9)->valueOf())
+                                        ->get()) == 1){
+                                        $level=$level . "\nBefore 9am";
+                                        
+                                        $faceR = FaceRecord::where('upi_no', '=', $upi_no)
+                                         ->where('time_taken', '>', (string)Carbon::today()->valueOf())
+                                         ->where('time_taken', '<', (string)Carbon::today()->addHours(9)->valueOf())
+                                         ->orderby('id', 'DESC')
+                                         ->first();
+                                        if ($faceR != null) {
+                                            $level = $level . "\nhasPreviousFace";
+                                            //we have a record
+                                            //check if a record is already present within the past 30 minutes
+                                            $input = $faceR->time_taken;
+                                            $input2 = $time_taken;
+                                            $input = floor($input / 1000 / 60);
+                                            $input2 = floor($input2 / 1000 / 60);
+                                            if ($input2 - $input < 210) {
+                                                $level = $level . "\nisSlessThan1Minute";
+    
+                                                // dd('<10');
+                                                //recent record taken
+                                                //Ignore
+                                                // $faceRecord->save();
+                                                // $this->sendSms($guardian,$faceRecord,$time_taken,'second');
+                                            } else {
+                                                $level = $level . "\nisgreaterThan1Minute";
+                                                //check if its the second record
+                                                
+                                                    $level = $level . "\nisExit before 9am";
+                                                    // dd('second');
+                                                    $faceRecord->status = 'exit';
+                                                    $faceRecord->has_parent = 'yes';
+                                                    $faceRecord->save();
+                                                
+                                            }
+                                        }
+                                        else{
+                                            $level = $level . "\nisEntry Before 9am";
+            
+                                            $faceRecord->status = 'enter';
+                                            $faceRecord->has_parent = 'yes';
+                                            $faceRecord->save();
+                                                }
+                                    }
+                                    elseif(sizeof(FaceRecord::where('upi_no', '=', $upi_no)
+                                        ->where('time_taken', '>=', (string)Carbon::today()->addHours(9)->valueOf())
+                                        ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+                                        ->get()) == 1){
+                                                    $level = $level . "\nisExit After 9am";
+                                                    // dd('second');
+                                                    $faceRecord->status = 'exit';
+                                                    $faceRecord->has_parent = 'yes';
+                                                    $faceRecord->save();
+                                    }
+                                    else{
+                                        $level=$level . "\n Tumekosea mahali";
+                                    }
+                                }
+                   
+            }
+             else {
                 $level = $level . "\nisStaff";
                 $staff = Staff::where('staff_id', '=', $upi_no)->get()->first();
                 if ($staff != null) {
@@ -502,76 +505,76 @@ class DeviceRecordController extends Controller
         $record->save();
     }
 
-    public function dataPullT(Request $request)
-    {
-        $record = new DeviceRecord();
-        $record->data = 'dataPull |' . implode("|", $request->all());
-        $record->save();
-        $pageNumber = null;
-        if ($request->has('pageNumber')) {
-            $pageNumber = $request->pageNumber;
-        }
-        $students_count = Student::withTrashed()->where('class', '!=', '9')->get();
-        // $students=Student::withTrashed()->where('class','!=','9')->paginate(100, ['*'], 'page', $pageNumber);
+    // public function dataPullT(Request $request)
+    // {
+    //     $record = new DeviceRecord();
+    //     $record->data = 'dataPull |' . implode("|", $request->all());
+    //     $record->save();
+    //     $pageNumber = null;
+    //     if ($request->has('pageNumber')) {
+    //         $pageNumber = $request->pageNumber;
+    //     }
+    //     $students_count = Student::withTrashed()->where('class', '!=', '9')->get();
+    //     // $students=Student::withTrashed()->where('class','!=','9')->paginate(100, ['*'], 'page', $pageNumber);
 
-        $users = User::withTrashed()
-            ->leftJoin('students', function ($join) {
-                $join->on('users.id', '=', 'students.user_id')
-                    ->where('students.class', '!=', '9');
-            })
-            // ->leftJoin('students', 'users.id', '=', 'students.user_id')
-            ->leftJoin('staff', 'users.id', '=', 'staff.user_id')
-            ->select('users.*', 'students.upi_no', 'students.first_name', 'students.surname', 'students.class', 'staff.staff_id')
-            ->where('users.password', '=', null)
-            ->get();
-        // ->paginate(100, ['*'], 'page', $pageNumber);
+    //     $users = User::withTrashed()
+    //         ->leftJoin('students', function ($join) {
+    //             $join->on('users.id', '=', 'students.user_id')
+    //                 ->where('students.class', '!=', '9');
+    //         })
+    //         // ->leftJoin('students', 'users.id', '=', 'students.user_id')
+    //         ->leftJoin('staff', 'users.id', '=', 'staff.user_id')
+    //         ->select('users.*', 'students.upi_no', 'students.first_name', 'students.surname', 'students.class', 'staff.staff_id')
+    //         ->where('users.password', '=', null)
+    //         ->get();
+    //     // ->paginate(100, ['*'], 'page', $pageNumber);
 
-        // dd($users);
-        $formated_students = [];
-        foreach ($users as $student) {
-            if (isset($student->upi_no)) {
-                // if($student->upi_no=="04308"){
-                //     dd($student);
-                // }
-                if ($student->class != 9) {
-                    array_push($formated_students, (object)[
-                        'eno' => $student->upi_no, //work number
-                        'idcard' => 'stream', //ID number-use as stream
-                        'cardid' => 'class ' . $student->class, //card number-use as class
-                        'uuid' => $student->id, //uuid
-                        'name' => $student->first_name . " " . $student->surname . ' (class ' . $student->class . ')', //names
-                        'type' => $student->deleted_at == NULL ? 1 : 0, //Type 0 Delete 1 Add Update Note: Deleting a person will delete them along with their access rights configuration.
-                    ]);
-                }
-            } else if (isset($student->staff_id)) {
-                array_push($formated_students, (object)[
-                    'eno' => $student->staff_id, //work number
-                    'idcard' => 'staff', //ID number-use as stream
-                    'cardid' => $student->id, //card number-use as class
-                    'uuid' => $student->id, //uuid
-                    'name' => $student->name, //names
-                    'type' => $student->deleted_at == NULL ? 1 : 0, //Type 0 Delete 1 Add Update Note: Deleting a person will delete them along with their access rights configuration.
-                ]);
-            } else {
-                // array_push($formated_students, (object)[
-                //     'NA'=>$student->id
-                //      ]);
-            }
-        }
-        $data = [
-            'employeeList' => $formated_students,
-            'count' => sizeof($formated_students), //People List page size (get the people list by page, this is the pageSize per page)
-            'sum' => sizeof($formated_students), //Total number of records in the population list
-        ];
-        $myResponse = json_encode([
-            'code' => 200,
-            'success' => true,
-            'messsage' => 'successful',
-            'data' => $data
-        ]);
-        return response($myResponse)
-            ->header('Content-Type', 'application/json');
-    }
+    //     // dd($users);
+    //     $formated_students = [];
+    //     foreach ($users as $student) {
+    //         if (isset($student->upi_no)) {
+    //             // if($student->upi_no=="04308"){
+    //             //     dd($student);
+    //             // }
+    //             if ($student->class != 9) {
+    //                 array_push($formated_students, (object)[
+    //                     'eno' => $student->upi_no, //work number
+    //                     'idcard' => 'stream', //ID number-use as stream
+    //                     'cardid' => 'class ' . $student->class, //card number-use as class
+    //                     'uuid' => $student->id, //uuid
+    //                     'name' => $student->first_name . " " . $student->surname . ' (class ' . $student->class . ')', //names
+    //                     'type' => $student->deleted_at == NULL ? 1 : 0, //Type 0 Delete 1 Add Update Note: Deleting a person will delete them along with their access rights configuration.
+    //                 ]);
+    //             }
+    //         } else if (isset($student->staff_id)) {
+    //             array_push($formated_students, (object)[
+    //                 'eno' => $student->staff_id, //work number
+    //                 'idcard' => 'staff', //ID number-use as stream
+    //                 'cardid' => $student->id, //card number-use as class
+    //                 'uuid' => $student->id, //uuid
+    //                 'name' => $student->name, //names
+    //                 'type' => $student->deleted_at == NULL ? 1 : 0, //Type 0 Delete 1 Add Update Note: Deleting a person will delete them along with their access rights configuration.
+    //             ]);
+    //         } else {
+    //             // array_push($formated_students, (object)[
+    //             //     'NA'=>$student->id
+    //             //      ]);
+    //         }
+    //     }
+    //     $data = [
+    //         'employeeList' => $formated_students,
+    //         'count' => sizeof($formated_students), //People List page size (get the people list by page, this is the pageSize per page)
+    //         'sum' => sizeof($formated_students), //Total number of records in the population list
+    //     ];
+    //     $myResponse = json_encode([
+    //         'code' => 200,
+    //         'success' => true,
+    //         'messsage' => 'successful',
+    //         'data' => $data
+    //     ]);
+    //     return response($myResponse)
+    //         ->header('Content-Type', 'application/json');
+    // }
 
     public function dataPull(Request $request)
     {
