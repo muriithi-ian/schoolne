@@ -540,10 +540,13 @@ class DeviceRecordController extends Controller
 
             $level = $level . "\nfaceNotCapturedCorrectly";
         }
+
         $record = new DeviceRecord();
         // $record->data = 'recordUpload|'.$level.implode("|",$request);
         $record->data = 'recordUpload|' . $level;
+
         $record->save();
+        $level = $level . "\uploaded";
     }
 }
 
