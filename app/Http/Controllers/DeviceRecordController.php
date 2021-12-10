@@ -295,20 +295,17 @@ class DeviceRecordController extends Controller
                 $faceRecord->temperature = $temperature;
 
 
-                $guardian = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->first();
-                if ($guardian != null) {
-                    $level = $level . "\nhasGuardian";
                     if (sizeof(FaceRecord::where('upi_no', '=', $upi_no)
                                     ->where('time_taken', '>', (string)Carbon::today()->valueOf())
                                     ->where('time_taken', '<=', (string)Carbon::today()->addhours(9)->valueOf())
-                                    ->get())){
+                                    ->get())==1){
                                     $level=$level . "\nBefore 9am";
                                     
                                     $faceR = FaceRecord::where('upi_no', '=', $upi_no)
-                                     ->where('time_taken', '>', (string)Carbon::today()->valueOf())
-                                     ->where('time_taken', '<', (string)Carbon::today()->addHours(9)->valueOf())
-                                     ->orderby('id', 'DESC')
-                                     ->first();
+                                    ->where('time_taken', '>', (string)Carbon::today()->valueOf())
+                                    ->where('time_taken', '<=', (string)Carbon::today()->addhours(9)->valueOf())
+                                    ->orderby('id', 'DESC')
+                                    ->first();
                                     if ($faceR != null) {
                                         $level = $level . "\nhasPreviousFace";
                                         //we have a record
@@ -340,10 +337,17 @@ class DeviceRecordController extends Controller
                 //                                    $this->sendPremiumSms($key, $faceRecord, $time_taken, 'second');
                 //                                }
                                                 //send to one guardian
-                                                $guardian = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get()->first();
+                                                $guardian = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->first();
+                                                if ($guardian != null) {
+                                                    $level = $level . "\nhasGuardian1";
                                                 $this->sendSms($guardian, $faceRecord, $time_taken, 'second',$student);
-                                            
+                                                }
+                                                else{
+                                                    $level=$level."\no guardian";
+                                                }
+                                            }
                                         }
+                                        
                                     }
                                     else{
                                         $level = $level . "\nisEntry Before 9am";
@@ -353,149 +357,163 @@ class DeviceRecordController extends Controller
                                         $faceRecord->save();
         
                                         $guardian = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get()->first();
+                                        if ($guardian != null) {
+                                            $level = $level . "\nhasGuardian1";
                                         $this->sendSms($guardian, $faceRecord, $time_taken, 'first',$student);
-                                            }
+                                        }
+                                        else{
+                                            $level=$level."\no guardian";
+                                        }
+            
                                 }
-                                elseif(sizeof(FaceRecord::where('upi_no', '=', $upi_no)
+                            }
+                            if(sizeof(FaceRecord::where('upi_no', '=', $upi_no)
                                     ->where('time_taken', '>=', (string)Carbon::today()->addHours(9)->valueOf())
                                     ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
-                                    ->get()) == 1){
-                                                $level = $level . "\nisExit After 9am";
-                                                // dd('second');
+                                    ->get()) == 1)
+                                    {
+                                                $level = $level . "\nisExit After 9am";                                            // dd('second');
+                                                
                                                 $faceRecord->status = 'exit';
                                                 $faceRecord->has_parent = 'yes';
                                                 $faceRecord->save();
+
                                                 $guardian = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get()->first();
+                                                if ($guardian != null) {
+                                                    $level = $level . "\nhasGuardian1";
                                                 $this->sendSms($guardian, $faceRecord, $time_taken, 'second',$student);
+                                                }
+                                                else{
+                                                    $level=$level."\no guardian";
+                                                }
                                 }
                                 else{
                                     $level=$level . "\n Tumekosea mahali";
                                 }
                             }            
-                else {
-                        $level = $level . "\noGuardian";
-                        if (sizeof(FaceRecord::where('upi_no', '=', $upi_no)
-                                        ->where('time_taken', '>', (string)Carbon::today()->valueOf())
-                                        ->where('time_taken', '<', (string)Carbon::today()->addhours(9)->valueOf())
-                                        ->get()) == 1){
-                                        $level=$level . "\nBefore 9am";
+                // else {
+                //         $level = $level . "\noGuardian";
+                //         if (sizeof(FaceRecord::where('upi_no', '=', $upi_no)
+                //                         ->where('time_taken', '>', (string)Carbon::today()->valueOf())
+                //                         ->where('time_taken', '<', (string)Carbon::today()->addhours(9)->valueOf())
+                //                         ->get()) == 1){
+                //                         $level=$level . "\nBefore 9am";
                                         
-                                        $faceR = FaceRecord::where('upi_no', '=', $upi_no)
-                                         ->where('time_taken', '>', (string)Carbon::today()->valueOf())
-                                         ->where('time_taken', '<', (string)Carbon::today()->addHours(9)->valueOf())
-                                         ->orderby('id', 'DESC')
-                                         ->first();
-                                        if ($faceR != null) {
-                                            $level = $level . "\nhasPreviousFace";
-                                            //we have a record
-                                            //check if a record is already present within the past 30 minutes
-                                            $input = $faceR->time_taken;
-                                            $input2 = $time_taken;
-                                            $input = floor($input / 1000 / 60);
-                                            $input2 = floor($input2 / 1000 / 60);
-                                            if ($input2 - $input < 210) {
-                                                $level = $level . "\nisSlessThan1Minute";
+                //                         $faceR = FaceRecord::where('upi_no', '=', $upi_no)
+                //                          ->where('time_taken', '>', (string)Carbon::today()->valueOf())
+                //                          ->where('time_taken', '<', (string)Carbon::today()->addHours(9)->valueOf())
+                //                          ->orderby('id', 'DESC')
+                //                          ->first();
+                //                         if ($faceR != null) {
+                //                             $level = $level . "\nhasPreviousFace";
+                //                             //we have a record
+                //                             //check if a record is already present within the past 30 minutes
+                //                             $input = $faceR->time_taken;
+                //                             $input2 = $time_taken;
+                //                             $input = floor($input / 1000 / 60);
+                //                             $input2 = floor($input2 / 1000 / 60);
+                //                             if ($input2 - $input < 210) {
+                //                                 $level = $level . "\nisSlessThan1Minute";
     
-                                                // dd('<10');
-                                                //recent record taken
-                                                //Ignore
-                                                // $faceRecord->save();
-                                                // $this->sendSms($guardian,$faceRecord,$time_taken,'second');
-                                            } else {
-                                                $level = $level . "\nisgreaterThan1Minute";
-                                                //check if its the second record
+                //                                 // dd('<10');
+                //                                 //recent record taken
+                //                                 //Ignore
+                //                                 // $faceRecord->save();
+                //                                 // $this->sendSms($guardian,$faceRecord,$time_taken,'second');
+                //                             } else {
+                //                                 $level = $level . "\nisgreaterThan1Minute";
+                //                                 //check if its the second record
                                                 
-                                                    $level = $level . "\nisExit before 9am";
-                                                    // dd('second');
-                                                    $faceRecord->status = 'exit';
-                                                    $faceRecord->has_parent = 'yes';
-                                                    $faceRecord->save();
+                //                                     $level = $level . "\nisExit before 9am";
+                //                                     // dd('second');
+                //                                     $faceRecord->status = 'exit';
+                //                                     $faceRecord->has_parent = 'yes';
+                //                                     $faceRecord->save();
                                                 
-                                            }
-                                        }
-                                        else{
-                                            $level = $level . "\nisEntry Before 9am";
+                //                             }
+                //                         }
+                //                         else{
+                //                             $level = $level . "\nisEntry Before 9am";
             
-                                            $faceRecord->status = 'enter';
-                                            $faceRecord->has_parent = 'yes';
-                                            $faceRecord->save();
-                                                }
-                                    }
-                                    elseif(sizeof(FaceRecord::where('upi_no', '=', $upi_no)
-                                        ->where('time_taken', '>=', (string)Carbon::today()->addHours(9)->valueOf())
-                                        ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
-                                        ->get()) == 1){
-                                                    $level = $level . "\nisExit After 9am";
-                                                    // dd('second');
-                                                    $faceRecord->status = 'exit';
-                                                    $faceRecord->has_parent = 'yes';
-                                                    $faceRecord->save();
-                                    }
-                                    else{
-                                        $level=$level . "\n Tumekosea mahali";
-                                    }
-                                }
-                   
-            }
-             else {
-                $level = $level . "\nisStaff";
-                $staff = Staff::where('staff_id', '=', $upi_no)->get()->first();
-                if ($staff != null) {
-                    $faceRecord = new StaffFaceRecord();
-                    $faceRecord->reg_no = $upi_no;
-                    $faceRecord->time_taken = $time_taken;
-                    $faceRecord->device_serial = $device_serial;
-                    $faceRecord->staff_type = $staff->type;
-                    $faceRecord->event = $event;
-                    $faceRecord->temperature = $temperature;
+                //                             $faceRecord->status = 'enter';
+                //                             $faceRecord->has_parent = 'yes';
+                //                             $faceRecord->save();
+                //                                 }
+                //                     }
+                //                     elseif(sizeof(FaceRecord::where('upi_no', '=', $upi_no)
+                //                         ->where('time_taken', '>=', (string)Carbon::today()->addHours(9)->valueOf())
+                //                         ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+                //                         ->get()) == 1){
+                //                                     $level = $level . "\nisExit After 9am";
+                //                                     // dd('second');
+                //                                     $faceRecord->status = 'exit';
+                //                                     $faceRecord->has_parent = 'yes';
+                //                                     $faceRecord->save();
+                //                     }
+                //                     else{
+                //                         $level=$level . "\n Tumekosea mahali";
+                //                     }
+                                
+    
+            //  else {
+            //     $level = $level . "\nisStaff";
+            //     $staff = Staff::where('staff_id', '=', $upi_no)->get()->first();
+            //     if ($staff != null) {
+            //         $faceRecord = new StaffFaceRecord();
+            //         $faceRecord->reg_no = $upi_no;
+            //         $faceRecord->time_taken = $time_taken;
+            //         $faceRecord->device_serial = $device_serial;
+            //         $faceRecord->staff_type = $staff->type;
+            //         $faceRecord->event = $event;
+            //         $faceRecord->temperature = $temperature;
 
 
-                    $faceR = StaffFaceRecord::where('reg_no', '=', $upi_no)
-                        ->where('time_taken', '>', (string)Carbon::today()->valueOf())
-                        ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
-                        ->orderby('id', 'DESC')
-                        ->first();
-                    // dd($faceR);
-                    if ($faceR != null) {
-                        //we have a record
-                        //check if a record is already present within the past 30 minutes
-                        $input = $faceR->time_taken;
-                        $input2 = $time_taken;
-                        $input = floor($input / 1000 / 60);
-                        $input2 = floor($input2 / 1000 / 60);
-                        if ($input2 - $input < 210) {
+            //         $faceR = StaffFaceRecord::where('reg_no', '=', $upi_no)
+            //             ->where('time_taken', '>', (string)Carbon::today()->valueOf())
+            //             ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+            //             ->orderby('id', 'DESC')
+            //             ->first();
+            //         // dd($faceR);
+            //         if ($faceR != null) {
+            //             //we have a record
+            //             //check if a record is already present within the past 30 minutes
+            //             $input = $faceR->time_taken;
+            //             $input2 = $time_taken;
+            //             $input = floor($input / 1000 / 60);
+            //             $input2 = floor($input2 / 1000 / 60);
+            //             if ($input2 - $input < 210) {
 
-                            // dd('<10');
-                            //recent record taken
-                            //Ignore
-                            // $faceRecord->save();
-                            // $this->sendSms($guardian,$faceRecord,$time_taken,'second');
-                        } else {
-                            //check if its the second record
+            //                 // dd('<10');
+            //                 //recent record taken
+            //                 //Ignore
+            //                 // $faceRecord->save();
+            //                 // $this->sendSms($guardian,$faceRecord,$time_taken,'second');
+            //             } else {
+            //                 //check if its the second record
 
-                            if (sizeof(StaffFaceRecord::where('reg_no', '=', $upi_no)
-                                    ->where('time_taken', '>', (string)Carbon::today()->valueOf())
-                                    ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
-                                    ->get()) == 1) {
-                                // dd('second');
-                                $faceRecord->status = 'exit';
-                                $faceRecord->save();
-                            } else {
-                                // dd(sizeof(FaceRecord::where('upi_no', '=', $upi_no)
-                                // ->whereDate('created_at', Carbon::today())
-                                // ->get()));
-                                $faceRecord->save();
-                            }
-                        }
-                    } else {
-                        //no record
-                        // dd('first');
-                        $faceRecord->status = 'enter';
-                        $faceRecord->save();
-                    }
-                }
-            }
-        } else {
+            //                 if (sizeof(StaffFaceRecord::where('reg_no', '=', $upi_no)
+            //                         ->where('time_taken', '>', (string)Carbon::today()->valueOf())
+            //                         ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+            //                         ->get()) == 1) {
+            //                     // dd('second');
+            //                     $faceRecord->status = 'exit';
+            //                     $faceRecord->save();
+            //                 } else {
+            //                     // dd(sizeof(FaceRecord::where('upi_no', '=', $upi_no)
+            //                     // ->whereDate('created_at', Carbon::today())
+            //                     // ->get()));
+            //                     $faceRecord->save();
+            //                 }
+            //             }
+            //         } else {
+            //             //no record
+            //             // dd('first');
+            //             $faceRecord->status = 'enter';
+            //             $faceRecord->save();
+            //         }
+            //     }
+            // }
+         else{
 
             $level = $level . "\nfaceNotCapturedCorrectly";
         }
@@ -575,7 +593,7 @@ class DeviceRecordController extends Controller
     //     return response($myResponse)
     //         ->header('Content-Type', 'application/json');
     // }
-
+    
     public function dataPull(Request $request)
     {
         $record = new DeviceRecord();
