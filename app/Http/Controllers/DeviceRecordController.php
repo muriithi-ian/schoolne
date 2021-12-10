@@ -300,8 +300,8 @@ class DeviceRecordController extends Controller
                     $level = $level . "\nhasGuardian";
                     if (sizeof(FaceRecord::where('upi_no', '=', $upi_no)
                                     ->where('time_taken', '>', (string)Carbon::today()->valueOf())
-                                    ->where('time_taken', '<', (string)Carbon::today()->addhours(9)->valueOf())
-                                    ->get()) == 1){
+                                    ->where('time_taken', '<=', (string)Carbon::today()->addhours(9)->valueOf())
+                                    ->get())){
                                     $level=$level . "\nBefore 9am";
                                     
                                     $faceR = FaceRecord::where('upi_no', '=', $upi_no)
