@@ -88,10 +88,10 @@ class DeviceRecordController extends Controller
         //        dd($records);
         foreach ($records as $key) {
             $enter = sizeof(FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
-                ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
+                ->where('time_taken', '<', (string)Carbon::today()->addHours(9)->valueOf())
                 ->where('status', '=', 'enter')->where('upi_no', '=', $key->upi_no)
                 ->get());
-            $exit = sizeof(FaceRecord::where('time_taken', '>', (string)Carbon::today()->valueOf())
+            $exit = sizeof(FaceRecord::where('time_taken', '>', (string)Carbon::today()->addHours(9)->valueOf())
                 ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                 ->where('status', '=', 'exit')->where('upi_no', '=', $key->upi_no)
                 ->get());
@@ -325,7 +325,7 @@ class DeviceRecordController extends Controller
                             //check if its the second record
 
                             if (sizeof(FaceRecord::where('upi_no', '=', $upi_no)
-                                    ->where('time_taken', '>', (string)Carbon::today()->addHours('9')->valueOf())
+                                    ->where('time_taken', '>', (string)Carbon::today()->addHours(9)->valueOf())
                                     ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                                     ->get()) == 1) {
                                 $level = $level . "\nisExit";
