@@ -304,7 +304,7 @@ class DeviceRecordController extends Controller
                         ->orderby('id', 'DESC')
                         ->first();
                     // dd($faceR);
-                    if ($faceR = null) {
+                    if ($faceR != null) {
                         $level = $level . "\nhasPrevFace";
                         //we have a record
                         //check if a record is already present within the past 30 minutes
@@ -357,7 +357,7 @@ class DeviceRecordController extends Controller
                         $level = $level . "\nnoFace";
                         //no record
                         // dd('first');
-                        $faceRecord->status = 'enter';
+                        $faceRecord->status = 'exit';
 
                         $faceRecord->has_parent = 'yes';
                         $faceRecord->save();
