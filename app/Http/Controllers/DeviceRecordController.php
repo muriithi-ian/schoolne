@@ -356,7 +356,7 @@ class DeviceRecordController extends Controller
                         }
                     }
                  elseif (sizeof(FaceRecord::where('upi_no', '=', $upi_no)
-                            ->where('time_taken', '>=', (string)Carbon::today()->addHours(9)->valueOf())
+                            ->where('time_taken', '>=', (string)Carbon::today()->addHours(18)->valueOf())
                             ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                             ->get()) == 0) {
                         $level = $level . "\nisExiAfter9am";
@@ -374,6 +374,7 @@ class DeviceRecordController extends Controller
 
                     else {
                         $level = $level . "\nnoFace";
+                        $level=$level."\nActually works"
                         //no record
                         // dd('first');
                         $faceRecord->status = 'enter';
