@@ -374,7 +374,6 @@ class DeviceRecordController extends Controller
 
                     else {
                         $level = $level . "\nnoFace";
-                        $level=$level."\nActually works"
                         //no record
                         // dd('first');
                         $faceRecord->status = 'enter';
