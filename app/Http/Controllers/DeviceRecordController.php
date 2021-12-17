@@ -60,7 +60,7 @@ class DeviceRecordController extends Controller
             $school=" 4";
         }
         $record = new DeviceRecord();
-        $record->data = 'HeartBeat|'.env('APP_NAME').'-'.$request->school_id.'|' . implode("|", $request->all());
+        $record->data = 'HeartBeat|'.env('APP_NAME').$school.'|' . implode("|", $request->all());
         $record->save();
         return json_encode([
             'code' => 200,
@@ -329,7 +329,7 @@ class DeviceRecordController extends Controller
                                     ->where('time_taken', '>', (string)Carbon::today()->valueOf())
                                     ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                                     ->get()) == 1) {
-                                $level = $level . "\nisExitt";
+                                $level = $level . "\nisExit";
                                 // dd('second');
                                 $faceRecord->status = 'exit';
                                 $faceRecord->has_parent = 'yes';
@@ -354,29 +354,12 @@ class DeviceRecordController extends Controller
                                 $faceRecord->save();
                             }
                         }
-                    }
-                 elseif (sizeof(FaceRecord::where('upi_no', '=', $upi_no)
-                            ->where('time_taken', '>=', (string)Carbon::today()->addHours(22)->valueOf())
-                            ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
-                            ->get()) == 0) {
-                        $level = $level . "\nisExiAfter9am";
-                        // dd('first');
-                        $faceRecord->status = 'exit';
-                        $faceRecord->has_parent = 'yes';
-                        $faceRecord->save();
-
-                        $guardian= Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get()->first();
-
-                        $this->sendSms($guardian, $faceRecord, $time_taken, 'second',$student);
-
-                 }
-
-
-                    else {
+                    } else {
                         $level = $level . "\nnoFace";
                         //no record
                         // dd('first');
-                        $faceRecord->status = 'enter';
+                        $faceRecord->status = 'exit';
+
                         $faceRecord->has_parent = 'yes';
                         $faceRecord->save();
                         //disable sms $guardians = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get();
@@ -388,7 +371,7 @@ class DeviceRecordController extends Controller
                         //Send 1 sms
                         $guardian = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get()->first();
 
-                            $this->sendSms($guardian, $faceRecord, $time_taken, 'first',$student);
+                            $this->sendSms($guardian, $faceRecord, $time_taken, 'second',$student);
 
                     }
 
@@ -447,7 +430,7 @@ class DeviceRecordController extends Controller
                         $level = $level . "\nnoFace";
                         //no record
                         // dd('first');
-                        $faceRecord->status = 'enter';
+                        $faceRecord->status = 'exit';
                         $faceRecord->has_parent = 'no';
                         $faceRecord->save();
                     }
@@ -642,7 +625,6 @@ class DeviceRecordController extends Controller
                 // array_push($formated_students, (object)[
                 //     'NA'=>$student->id
                 //      ]);
-                //yourschoolname
             }
         }
         $data = [
