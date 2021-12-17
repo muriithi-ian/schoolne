@@ -356,7 +356,7 @@ class DeviceRecordController extends Controller
                         }
                     }
                  elseif (sizeof(FaceRecord::where('upi_no', '=', $upi_no)
-                            ->where('time_taken', '>=', (string)Carbon::today()->addHours(18)->valueOf())
+                            ->where('time_taken', '>=', (string)Carbon::today()->addHours(22)->valueOf())
                             ->where('time_taken', '<', (string)Carbon::tomorrow()->valueOf())
                             ->get()) == 0) {
                         $level = $level . "\nisExiAfter9am";
