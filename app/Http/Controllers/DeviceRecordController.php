@@ -367,10 +367,10 @@ class DeviceRecordController extends Controller
                         }
                             else{
                             $level=$level."\nbefore 9am";
-                                $faceRecord->status = 'exitt';
+                                $faceRecord->status = 'enter';
                                 $faceRecord->has_parent = 'yes';
                                 $faceRecord->save();
-                            $this->sendSms($guardian, $faceRecord, $time_taken, 'second',$student);
+                            $this->sendSms($guardian, $faceRecord, $time_taken, 'first',$student);
                             }
                     }
 
@@ -436,7 +436,7 @@ class DeviceRecordController extends Controller
                         }
                             else{
                             $level=$level."\nbefore 9am";
-                                $faceRecord->status = 'exitt';
+                                $faceRecord->status = 'enter';
                                 $faceRecord->has_parent = 'no';
                                 $faceRecord->save();
                             }
