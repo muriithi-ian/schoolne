@@ -356,23 +356,22 @@ class DeviceRecordController extends Controller
                         }
                     } else {
                         $level = $level . "\nnoFace";
-                        //no record
-                        // dd('first');
-                        $faceRecord->status = 'exit';
-
-                        $faceRecord->has_parent = 'yes';
-                        $faceRecord->save();
-                        //disable sms $guardians = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get();
-//
-//                        $guardians = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get();
-//                        foreach ($guardians as $key) {
-//                            $this->sendPremiumSms($key, $faceRecord, $time_taken, 'first');
-//                        }
-                        //Send 1 sms
                         $guardian = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get()->first();
+                        if ($faceRecord->time_taken>(string)carbon::today()->addHour(9)->valueOf()) {
+                            $level=$level."\npast 9am";
 
+                            $faceRecord->status = 'exit';
+                            $faceRecord->has_parent = 'yes';
+                            $faceRecord->save();
                             $this->sendSms($guardian, $faceRecord, $time_taken, 'second',$student);
-
+                        }
+                            else{
+                            $level=$level."\nbefore 9am";
+                                $faceRecord->status = 'exitt';
+                                $faceRecord->has_parent = 'yes';
+                                $faceRecord->save();
+                            $this->sendSms($guardian, $faceRecord, $time_taken, 'second',$student);
+                            }
                     }
 
                     // return back()->with('success', 'Sms sent successfully');
@@ -428,11 +427,19 @@ class DeviceRecordController extends Controller
                         }
                     } else {
                         $level = $level . "\nnoFace";
-                        //no record
-                        // dd('first');
-                        $faceRecord->status = 'exit';
-                        $faceRecord->has_parent = 'no';
-                        $faceRecord->save();
+                        if ($faceRecord->time_taken>(string)carbon::today()->addHour(9)->valueOf()) {
+                            $level=$level."\npast 9am";
+
+                            $faceRecord->status = 'exit';
+                            $faceRecord->has_parent = 'no';
+                            $faceRecord->save();
+                        }
+                            else{
+                            $level=$level."\nbefore 9am";
+                                $faceRecord->status = 'exitt';
+                                $faceRecord->has_parent = 'no';
+                                $faceRecord->save();
+                            }
                     }
                 }
             } else {
@@ -765,11 +772,11 @@ class DeviceRecordController extends Controller
         if ($sms_time == 'first') {
             $templete1 = Smstemplete::where('id', '=', 1)->get()->pluck('content');
 
-            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . "  UPI:" . $face_record->student->upi_no . " has arrived at school at $new_time " . $templete1[0];
+            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . "  UPI:" . $face_record->student->upi_no . " has arrived at school at $new_time" . $templete1[0];
             // dd($templete);
         } else {
             $templete1 = Smstemplete::where('id', '=', 2)->get()->pluck('content');
-            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . " UPI:" . $face_record->student->upi_no . " has left school for home at $new_time " . $templete1[0];
+            $message1 = "Dear $guardian->fname, your child " . $face_record->student->first_name . " " . $face_record->student->surname . " UPI:" . $face_record->student->upi_no . " has left school for home at $new_time" . $templete1[0];
         }
 
 
