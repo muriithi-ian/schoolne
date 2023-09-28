@@ -1068,9 +1068,9 @@ class StudentController extends Controller
     }
     public function delete(Request $request)
     {
-        $guardian = Guardian::where('id', '=', $request->student_id)->first();
-        if ($guardian->delete()) {
-            return back()->with('success', 'Parent deleted successfully');
+        $student = Student::where('id', '=', $request->student_id)->first();
+        if ($student->delete()) {
+            return back()->with('success', 'Student deleted successfully');
         }
         return back()->withErrors([
             'message' => 'Something went wrong, contact system administrator',

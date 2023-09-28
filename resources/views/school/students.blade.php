@@ -249,7 +249,7 @@
                                                                                                     <label for="phone">Student middle name(optional)</label>
                                                                                                     <input type="text" name="middle_name"
                                                                                                         placeholder="Student middle name(optional)" id="phone"
-                                                                                                        class="form-control" value="{{$item->middle_name==null??''}}">
+                                                                                                        class="form-control" value="{{$item->middle_name==null?'':$item->middle_name}}">
                                                                                                 </div>
                                                                                                 <div class="form-group">
                                                                                                     <label for="upi">Student UPI No.</label>
@@ -308,11 +308,11 @@
                                                         <div id="myModal{{ $item->id }}" class="modal fade">
                                                             <div class="modal-dialog modal-confirm">
                                                                 <div class="modal-content">
-                                                                    <div class="modal-header flex-column">
-                                                                        <div class="icon-box">
+                                                                    <div class="modal-header flex justify-content-around ">
+                                                                        <!-- <div class="icon-box">
                                                                             <i class="material-icons">&#xE5CD;</i>
-                                                                        </div>
-                                                                        <h4 class="modal-title w-100">Are you sure?</h4>
+                                                                        </div> -->
+                                                                        <h4 class="modal-title">Are you sure?</h4>
                                                                         <button type="button" class="close"
                                                                             data-dismiss="modal"
                                                                             aria-hidden="true">&times;</button>
