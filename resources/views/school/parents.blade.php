@@ -361,7 +361,7 @@
                                                                 <option value="">Select One</option>
                                                                 @foreach ($allStudents as $student)
                                                                     <option value="{{ $student->id }}">
-                                                                        {{ $student->first_name . ' ' . $student->surname . ' (' . $student->class . '-' . $student->getStream->name . ')' }}
+                                                                        {{ $student->first_name . ' ' . $student->surname . ' (' . $student->class . '-' . $student->stream_name . ')' }}
                                                                     </option>
 
                                                                 @endforeach

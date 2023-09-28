@@ -64,7 +64,7 @@ class StudentController extends Controller
                 array_push($formated_classes, $myclass);
             }
         }
-//        dd($formated_classes);
+        //        dd($formated_classes);
         // dd($streams);
         // $notifications=Notification::where('receiver_id','=',$user->id)->get();
         // $new=sizeof(Order::where(function($query) {
@@ -89,13 +89,13 @@ class StudentController extends Controller
             'email' => ['required', 'max:255'],
             'password' => ['required', 'max:255'],
         ]);
-        $credentials=[
-            'email'=>$request->email,
-            'password'=>$request->password,
+        $credentials = [
+            'email' => $request->email,
+            'password' => $request->password,
         ];
-        if(Auth::attempt($credentials)){
+        if (Auth::attempt($credentials)) {
             //sucesss
-        }else{
+        } else {
             //not success
         }
         if (sizeof(User::where('email', '=', $request->email)->get()) > 0) {
@@ -433,8 +433,8 @@ class StudentController extends Controller
 
             // Import CSV to Database
             $filepath = public_path($location . "/" . $filename);
-            $path = getcwd(). "/".$location . "/" . $filename;
-            $path2 = __DIR__.$location . "/" . $filename;
+            $path = getcwd() . "/" . $location . "/" . $filename;
+            $path2 = __DIR__ . $location . "/" . $filename;
             // dd($filepath,$path,$path2);
             // Reading file
             $file = fopen($path, "r");
@@ -517,8 +517,8 @@ class StudentController extends Controller
                     // dd($user->id);
                     //add to guardian table
                     $guardian = new Guardian();
-                    if (sizeof(Guardian::where('user_id', '=', $user2->id)->where('student_id','=',$student->id)->get()) > 0) {
-                        $guardian = Guardian::where('user_id', '=', $user2->id)->where('student_id','=',$student->id)->first();
+                    if (sizeof(Guardian::where('user_id', '=', $user2->id)->where('student_id', '=', $student->id)->get()) > 0) {
+                        $guardian = Guardian::where('user_id', '=', $user2->id)->where('student_id', '=', $student->id)->first();
                     }
                     $guardian->user_id = $user2->id;
                     $guardian->student_id =  $student->id;
@@ -551,8 +551,8 @@ class StudentController extends Controller
                     // dd($user->id);
                     //add to guardian table
                     $guardian = new Guardian();
-                    if (sizeof(Guardian::where('user_id', '=', $user2->id)->where('student_id','=',$student->id)->get()) > 0) {
-                        $guardian = Guardian::where('user_id', '=', $user2->id)->where('student_id','=',$student->id)->first();
+                    if (sizeof(Guardian::where('user_id', '=', $user2->id)->where('student_id', '=', $student->id)->get()) > 0) {
+                        $guardian = Guardian::where('user_id', '=', $user2->id)->where('student_id', '=', $student->id)->first();
                     }
                     $guardian->user_id = $user2->id;
                     $guardian->student_id =  $student->id;
@@ -580,9 +580,9 @@ class StudentController extends Controller
     function getUpi($v)
     {
 
-        if (str_split($v)[0] === "0"||sizeof(str_split($v))==5) {
+        if (str_split($v)[0] === "0" || sizeof(str_split($v)) == 5) {
             return $v;
-        }else{
+        } else {
             return "0" . $v;
         }
     }
@@ -807,12 +807,12 @@ class StudentController extends Controller
     }
     public function delivery_reports_sms(Request $request)
     {
-        $subscribers=sizeof(SubscriptionReports::where('updateType','!=','deletion')->get());
-        $successful=sizeof(PremiumReports::where('status','=','Success')->get());
-        $insufficient=sizeof(PremiumReports::where('failureReason','like','%InsufficientCredit%')->get());
+        $subscribers = sizeof(SubscriptionReports::where('updateType', '!=', 'deletion')->get());
+        $successful = sizeof(PremiumReports::where('status', '=', 'Success')->get());
+        $insufficient = sizeof(PremiumReports::where('failureReason', 'like', '%InsufficientCredit%')->get());
 
-        $reports=PremiumReports::where('status','=','Success')
-            ->orWhere('status','=','Failed')
+        $reports = PremiumReports::where('status', '=', 'Success')
+            ->orWhere('status', '=', 'Failed')
             ->orderBy('updated_at', 'DESC')
             ->paginate(50);
 
@@ -821,82 +821,82 @@ class StudentController extends Controller
             'subscribers' => $subscribers,
             'insufficient' => $insufficient,
             'reports' => $reports,
-            'title'=>'Premium Sms Reports'
+            'title' => 'Premium Sms Reports'
         ]);
 
-//        $classes = Student::select('class')->where('class', '!=', '9')->groupBy('class')->get();
-//        $streams = Stream::all();
-//
-//
-//        $allStudents = array();
-//        $title = '';
-//        $current_class = 'all';
-//        $current_stream = 'all';
-//        $current_streamv = 'all';
-//        $day = $request->day;
-//        $myvar = strtotime($day) * 1000;
-//        $myvar2 = strtotime('+24 hours', strtotime($day)) * 1000;
-//        $key1 = 2;
-//        $myRecords = array();
-//        // dd(sizeof($myRecords));
-//        // dd($myRecords);
-//        if ($request->class != 'all') {
-//            $current_class = $request->class;
-//            if ($request->stream != 'all') {
-//                $stream_name = Stream::where('id', '=', $request->stream)->get();
-//                $title = 'Class ' . $request->class . '-' . $stream_name[0]->name;
-//                $current_stream = $stream_name[0]->name;
-//                $current_streamv = $request->stream;
-//                $allStudents = Student::where('class', '=', $request->class)->where('stream', '=', $request->stream)->paginate(300);
-//
-//                $myRecords = FaceRecord::join('students', function ($join) {
-//                    $join->on('students.upi_no', '=', 'face_records.upi_no');
-//                })->where('time_taken', '>', $myvar)
-//                    ->where('time_taken', '<', $myvar2)
-//                    ->where('students.class', '=', $request->class)->whereNotNull('face_records.status')->where('students.stream', '=', $request->stream)->orderBy('face_records.created_at', 'ASC')->paginate(300);
-//            } else {
-//                $title = 'Class ' . $request->class;
-//                $allStudents = Student::where('class', '=', $request->class)->paginate(300);
-//                $myRecords = FaceRecord::join('students', function ($join) {
-//                    $join->on('students.upi_no', '=', 'face_records.upi_no');
-//                })->where('time_taken', '>', $myvar)
-//                    ->where('time_taken', '<', $myvar2)
-//                    ->whereNotNull('face_records.status')->where('students.class', '=', $request->class)->orderBy('face_records.created_at', 'ASC')->paginate(300);
-//            }
-//        } else {
-//            if ($request->stream != 'all') {
-//                $stream_name = Stream::where('id', '=', $request->stream)->get();
-//                $title = 'All Classes of Stream ' . $stream_name[0]->name;
-//                // dd($stream_name[0]->name);
-//                $current_stream = $stream_name[0]->name;
-//                $current_streamv = $request->stream;
-//                $allStudents = Student::where('stream', '=', $request->stream)->paginate(300);
-//                $myRecords = FaceRecord::join('students', function ($join) {
-//                    $join->on('students.upi_no', '=', 'face_records.upi_no');
-//                })->where('time_taken', '>', $myvar)
-//                    ->where('time_taken', '<', $myvar2)
-//                    ->whereNotNull('face_records.status')->where('students.stream', '=', $request->stream)->orderBy('face_records.created_at', 'ASC')->paginate(300);
-//            } else {
-//                $title = 'All Classes in all Streams';
-//                $allStudents = Student::paginate(300);
-//                $myRecords = FaceRecord::whereNotNull('face_records.status')->where('time_taken', '>', $myvar)
-//                    ->where('time_taken', '<', $myvar2)
-//                    ->orderBy('face_records.created_at', 'ASC')->paginate(300);
-//            }
-//        }
-//        // dd($myRecords[0]->student);
-//        $parents = Guardian::paginate(100);
-//        //    dd($parents[0]->student);
-//        return view('sms.premiumCallback',['']);
-//        return view('school.reports', [
-//            'parents' => $parents, 'allStudents' => $allStudents,
-//            'classes' => $classes, 'streams' => $streams, 'title' => $title,
-//            'myRecords' => $myRecords,
-//            'current_class' => $current_class,
-//            'current_stream' => $current_stream,
-//            'current_streamv' => $current_streamv,
-//            'day' => $day,
-//        ]);
+        //        $classes = Student::select('class')->where('class', '!=', '9')->groupBy('class')->get();
+        //        $streams = Stream::all();
+        //
+        //
+        //        $allStudents = array();
+        //        $title = '';
+        //        $current_class = 'all';
+        //        $current_stream = 'all';
+        //        $current_streamv = 'all';
+        //        $day = $request->day;
+        //        $myvar = strtotime($day) * 1000;
+        //        $myvar2 = strtotime('+24 hours', strtotime($day)) * 1000;
+        //        $key1 = 2;
+        //        $myRecords = array();
+        //        // dd(sizeof($myRecords));
+        //        // dd($myRecords);
+        //        if ($request->class != 'all') {
+        //            $current_class = $request->class;
+        //            if ($request->stream != 'all') {
+        //                $stream_name = Stream::where('id', '=', $request->stream)->get();
+        //                $title = 'Class ' . $request->class . '-' . $stream_name[0]->name;
+        //                $current_stream = $stream_name[0]->name;
+        //                $current_streamv = $request->stream;
+        //                $allStudents = Student::where('class', '=', $request->class)->where('stream', '=', $request->stream)->paginate(300);
+        //
+        //                $myRecords = FaceRecord::join('students', function ($join) {
+        //                    $join->on('students.upi_no', '=', 'face_records.upi_no');
+        //                })->where('time_taken', '>', $myvar)
+        //                    ->where('time_taken', '<', $myvar2)
+        //                    ->where('students.class', '=', $request->class)->whereNotNull('face_records.status')->where('students.stream', '=', $request->stream)->orderBy('face_records.created_at', 'ASC')->paginate(300);
+        //            } else {
+        //                $title = 'Class ' . $request->class;
+        //                $allStudents = Student::where('class', '=', $request->class)->paginate(300);
+        //                $myRecords = FaceRecord::join('students', function ($join) {
+        //                    $join->on('students.upi_no', '=', 'face_records.upi_no');
+        //                })->where('time_taken', '>', $myvar)
+        //                    ->where('time_taken', '<', $myvar2)
+        //                    ->whereNotNull('face_records.status')->where('students.class', '=', $request->class)->orderBy('face_records.created_at', 'ASC')->paginate(300);
+        //            }
+        //        } else {
+        //            if ($request->stream != 'all') {
+        //                $stream_name = Stream::where('id', '=', $request->stream)->get();
+        //                $title = 'All Classes of Stream ' . $stream_name[0]->name;
+        //                // dd($stream_name[0]->name);
+        //                $current_stream = $stream_name[0]->name;
+        //                $current_streamv = $request->stream;
+        //                $allStudents = Student::where('stream', '=', $request->stream)->paginate(300);
+        //                $myRecords = FaceRecord::join('students', function ($join) {
+        //                    $join->on('students.upi_no', '=', 'face_records.upi_no');
+        //                })->where('time_taken', '>', $myvar)
+        //                    ->where('time_taken', '<', $myvar2)
+        //                    ->whereNotNull('face_records.status')->where('students.stream', '=', $request->stream)->orderBy('face_records.created_at', 'ASC')->paginate(300);
+        //            } else {
+        //                $title = 'All Classes in all Streams';
+        //                $allStudents = Student::paginate(300);
+        //                $myRecords = FaceRecord::whereNotNull('face_records.status')->where('time_taken', '>', $myvar)
+        //                    ->where('time_taken', '<', $myvar2)
+        //                    ->orderBy('face_records.created_at', 'ASC')->paginate(300);
+        //            }
+        //        }
+        //        // dd($myRecords[0]->student);
+        //        $parents = Guardian::paginate(100);
+        //        //    dd($parents[0]->student);
+        //        return view('sms.premiumCallback',['']);
+        //        return view('school.reports', [
+        //            'parents' => $parents, 'allStudents' => $allStudents,
+        //            'classes' => $classes, 'streams' => $streams, 'title' => $title,
+        //            'myRecords' => $myRecords,
+        //            'current_class' => $current_class,
+        //            'current_stream' => $current_stream,
+        //            'current_streamv' => $current_streamv,
+        //            'day' => $day,
+        //        ]);
     }
     public function send_bulk_sms(Request $request)
     {
@@ -1017,8 +1017,20 @@ class StudentController extends Controller
     {
         $parents = Guardian::orderby('fname')->paginate(100);
         $allStudents = Student::orderby('first_name')->get();
-        //    dd($parents[0]->student);
-        return view('school.parents', ['parents' => $parents, 'allStudents' => $allStudents]);
+        $allStreams = Stream::all();
+        $allStudentsWithStream = array();
+
+        foreach($allStudents as $student){
+            foreach($allStreams as $stream){
+                if($student->stream == $stream->id){
+                    $student->stream_name = $stream->name;
+                    array_push($allStudentsWithStream, $student);
+                }
+            }
+        }
+        // var_dump($allStudentsWithStream[0]->stream_name);
+        // die;
+        return view('school.parents', ['parents' => $parents, 'allStudents' => $allStudentsWithStream]);
     }
     public function myClass(Request $request)
     {
@@ -1143,9 +1155,9 @@ class StudentController extends Controller
     }
     public function sendSms($guardian, $message)
     {
-//        if($guardian->id<524){
-//            return;
-//        }
+        //        if($guardian->id<524){
+        //            return;
+        //        }
 
         $response = Http::asForm()->withHeaders([
             'apikey' => $_ENV['SMS_NORMAL_API_KEY'],
@@ -1188,8 +1200,8 @@ class StudentController extends Controller
     public function trySms()
     {
         // dd($guardian->phone);
-        $phone="0726569597";
-        $message="ONLINE TEST";
+        $phone = "0726569597";
+        $message = "ONLINE TEST";
         $response = Http::asForm()->withHeaders([
             'apikey' => $_ENV['SMS_NORMAL_API_KEY'],
         ])->post('https://api.africastalking.com/version1/messaging', [
@@ -1199,7 +1211,7 @@ class StudentController extends Controller
             'to' => $phone,
         ]);
         if ($response->successful()) {
-             dd($response->body());
+            dd($response->body());
             return back()->with('success', 'Message sent successfully');
         }
 
