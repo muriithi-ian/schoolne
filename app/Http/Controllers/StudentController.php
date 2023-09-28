@@ -1016,21 +1016,8 @@ class StudentController extends Controller
     public function getParents(Request $request)
     {
         $parents = Guardian::orderby('fname')->paginate(100);
-        $allStudents = Student::orderby('first_name')->get();
-        $allStreams = Stream::all();
-        $allStudentsWithStream = array();
-
-        foreach($allStudents as $student){
-            foreach($allStreams as $stream){
-                if($student->stream == $stream->id){
-                    $student->stream_name = $stream->name;
-                    array_push($allStudentsWithStream, $student);
-                }
-            }
-        }
-        // var_dump($allStudentsWithStream[0]->stream_name);
-        // die;
-        return view('school.parents', ['parents' => $parents, 'allStudents' => $allStudentsWithStream]);
+        $allStudents = Student::with('getStream')->orderby('first_name')->get();
+        return view('school.parents', ['parents' => $parents, 'allStudents' => $allStudents]);
     }
     public function myClass(Request $request)
     {
