@@ -282,6 +282,8 @@ class DeviceRecordController extends Controller
         // -2020-02-25: Adding a record of failed witness comparison
         // --2020-09-14 (version 2.2.2): add open door password
 
+        dd($device_serial);
+
         if ($event == 'face_0' || $event == 'card_0' || $event == 'faceAndcard_0') {
             $student = Student::where('upi_no', '=', $upi_no)->get()->first();
             // dd($student->id);
@@ -335,10 +337,10 @@ class DeviceRecordController extends Controller
                                 $faceRecord->has_parent = 'yes';
                                 $faceRecord->save();
                                 //disable sms
-//                                $guardians = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get();
-//                                foreach ($guardians as $key) {
-//                                    $this->sendPremiumSms($key, $faceRecord, $time_taken, 'second');
-//                                }
+                            //    $guardians = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get();
+                            //    foreach ($guardians as $key) {
+                            //        $this->sendPremiumSms($key, $faceRecord, $time_taken, 'second');
+                            //    }
                                 //send to one guardian
                                 $guardian = Guardian::where('student_id', '=', $student->id)->where('should_notify', '=', 'true')->get()->first();
                                 $this->sendSms($guardian, $faceRecord, $time_taken, 'second',$student);
@@ -474,7 +476,7 @@ class DeviceRecordController extends Controller
                             //recent record taken
                             //Ignore
                             // $faceRecord->save();
-                            // $this->sendSms($guardian,$faceRecord,$time_taken,'second');
+                            $this->sendSms($guardian,$faceRecord,$time_taken,'second');
                         } else {
                             //check if its the second record
 
@@ -652,7 +654,9 @@ class DeviceRecordController extends Controller
     public function dataPullBack(Request $request)
     {
         $record = new DeviceRecord();
-        $record->data = 'dataPullBack|' . implode("|", $request->all());
+        $data = $request->all();
+        $data= array_slice($data, 0, 5);
+        $record->data = 'dataPullBack|' . implode("|", $data);
         $record->save();
         return json_encode([
             'code' => 200,
