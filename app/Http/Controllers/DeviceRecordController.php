@@ -476,7 +476,7 @@ class DeviceRecordController extends Controller
                             //recent record taken
                             //Ignore
                             // $faceRecord->save();
-                            $this->sendSms($guardian,$faceRecord,$time_taken,'second');
+                            // $this->sendSms($guardian, $faceRecord,$time_taken,'second', $student);
                         } else {
                             //check if its the second record
 
